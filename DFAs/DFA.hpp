@@ -55,6 +55,42 @@ public:
     string run();
 };
 
+class stringDFA : public BaseDFA {
+    void strStart();
+    void chars();
+    void esc();
+    void strEnd();
+public:
+    stringDFA(string, int);
+    string run();
+};
+
+class longstringDFA : public BaseDFA {
+    void longStart();
+    void esc();
+    void quote1();
+    void quote2();
+    void chars();
+    void longEnd();
+public:
+    longstringDFA(string, int);
+    string run();
+};
+
+class numberDFA : public BaseDFA {
+    void numStart();
+    void zero();
+    void minus();
+    void ints();
+    void dec();
+    void floats();
+    void e();
+    void plusMinus();
+    void exp();
+public:
+    numberDFA(string, int);
+    string run();
+};
 
 class unknownDFA : public BaseDFA {
     void unknown();

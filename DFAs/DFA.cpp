@@ -185,9 +185,237 @@ string whitespaceDFA::run() {
     }
 }
 
+// ----------------- stringDFA method definitions -----------------
+void stringDFA::strStart() {
+    if (position < input.size() && input[position] == '"') {
+        ++position;
+        chars();
+    }
+}
+
+void stringDFA::chars() {
+    if (position < input.size() && (int(input[position]) >= 32 && int(input[position]) <= 126) && int(input[position]) != 34 && int(input[position]) != 92) {
+        ++position;
+        chars();
+    } else if (position < input.size() && input[position] == '\\') {
+        ++position;
+        esc();
+    } else if (position < input.size() && input[position] == '"') {
+        ++position;
+        strEnd();
+    }
+}
+
+void stringDFA::esc() {
+    if (position < input.size() && (input[position] == '"' || input[position] == '\\' || input[position] == '/' || input[position] == 'b' || input[position] == 'f' || input[position] == 'n' || input[position] == 'r' || input[position] == 't')) {
+        ++position;
+        chars();
+    }
+}
+
+void stringDFA::strEnd() {
+    longest = position;
+}
+
+
+stringDFA::stringDFA(string input, int start) {
+    this->input = input;
+    this->start = start;
+    position = start;
+}
+
+string stringDFA::run() {
+    strStart();
+    if (longest > -1) {
+        return input.substr(start, longest - start);
+    } else {
+        return "";
+    }
+}
+
+// ----------------- longstringDFA method definitions -----------------
+void longstringDFA::longStart() {
+    if (position + 2 < input.size() && input.substr(position, 3) == "\"\"\"") {
+        position += 3;
+        chars();
+    }
+}
+
+void longstringDFA::chars() {
+    if (position < input.size() && (((int(input[position]) >= 32 && int(input[position]) <= 126) && int(input[position]) != 34 && int(input[position]) != 92))) {
+        ++position;
+        chars();
+    } else if (position < input.size() && input[position] == '\\') {
+        ++position;
+        esc();
+    } else if (position < input.size() && input[position] == '"') {
+        ++position;
+        quote1();
+    }
+}
+
+void longstringDFA::quote1() {
+    if (position < input.size() && (((int(input[position]) >= 32 && int(input[position]) <= 126) && int(input[position]) != 34 && int(input[position]) != 92))) {
+        ++position;
+        chars();
+    } else if (position < input.size() && input[position] == '\\') {
+        ++position;
+        esc();
+    } else if (position < input.size() && input[position] == '"') {
+        ++position;
+        quote2();
+    }
+}
+
+void longstringDFA::quote2() {
+    if (position < input.size() && (((int(input[position]) >= 32 && int(input[position]) <= 126) && int(input[position]) != 34 && int(input[position]) != 92))) {
+        ++position;
+        chars();
+    } else if (position < input.size() && input[position] == '\\') {
+        ++position;
+        esc();
+    } else if (position < input.size() && input[position] == '"') {
+        ++position;
+        longEnd();
+    }
+}
+
+void longstringDFA::esc() {
+    if (position < input.size() && (input[position] == '\\' || input[position] == '/' || input[position] == 'b' || input[position] == 'f' || input[position] == 'n' || input[position] == 'r' || input[position] == 't' || input[position] == '"')) {
+        ++position;
+        chars();
+    }
+}
+
+void longstringDFA::longEnd() {
+    longest = position;
+}
+
+
+longstringDFA::longstringDFA(string input, int start) {
+    this->input = input;
+    this->start = start;
+    position = start;
+}
+
+string longstringDFA::run() {
+    longStart();
+    if (longest > -1) {
+        // cout << longest - start << endl;
+        return input.substr(start, longest - start);
+    } else {
+        return "";
+    }
+}
+
+// ----------------- numberDFA method definitions -----------------
+
+void numberDFA::numStart() {
+    if (position < input.size() && input[position] == '0') {
+        ++position;
+        zero();
+    } else if (position < input.size() && input[position] == '-') {
+        ++position;
+        minus();
+    } else if (position< input.size() && (int(input[position] - '0') >= 1 && int(input[position] - '0') <= 9)) {
+        ++position;
+        ints();
+    }
+}
+
+void numberDFA::zero() {
+    longest = position;
+    if (position < input.size() && input[position] == '.') {
+        ++position;
+        dec();
+    } else if (position < input.size() && (input[position] == 'e' || input[position] == 'E')) {
+        ++position;
+        e();
+    }
+}
+
+void numberDFA::minus() {
+    if (position< input.size() && (int(input[position] - '0') >= 1 && int(input[position] - '0') <= 9)) {
+        ++position;
+        ints();
+    }
+}
+
+void numberDFA::ints() {
+    longest = position;
+    if (position< input.size() && (int(input[position] - '0') >= 1 && int(input[position] - '0') <= 9)) {
+        ++position;
+        ints();
+    } else if (position < input.size() && input[position] == '.') {
+        ++position;
+        dec();
+    } else if (position < input.size() && (input[position] == 'e' || input[position] == 'E')) {
+        ++position;
+        e();
+    }
+}
+
+void numberDFA::dec() {
+    if (position< input.size() && (int(input[position] - '0') >= 0 && int(input[position] - '0') <= 9)) {
+        ++position;
+        floats();
+    }
+}
+
+void numberDFA::floats() {
+    longest = position;
+    if (position< input.size() && (int(input[position] - '0') >= 0 && int(input[position] - '0') <= 9)) {
+        ++position;
+        floats();
+    } else if (position < input.size() && (input[position] == 'e' || input[position] == 'E')) {
+        ++position;
+        e();
+    }
+}
+
+void numberDFA::e() {
+    if (position < input.size() && (input[position] == '+' || input[position] == '-')) {
+        ++position;
+        plusMinus();
+    } else if (position< input.size() && (int(input[position] - '0') >= 0 && int(input[position] - '0') <= 9)) {
+        ++position;
+        floats();
+    }
+}
+
+void numberDFA::plusMinus() {
+    if (position< input.size() && (int(input[position] - '0') >= 0 && int(input[position] - '0') <= 9)) {
+        ++position;
+        floats();
+    }
+}
+
+void numberDFA::exp() {
+    longest = position;
+    if (position< input.size() && (int(input[position] - '0') >= 0 && int(input[position] - '0') <= 9)) {
+        ++position;
+        floats();
+    }
+}
+
+numberDFA::numberDFA(string input, int start) {
+    this->input = input;
+    this->start = start;
+    position = start;
+}
+
+string numberDFA::run() {
+    numStart();
+    if (longest > -1) {
+        return input.substr(start, longest - start);
+    } else {
+        return "";
+    }
+}
+
+
 //  ----------------- unknownDFA method definitions -----------------
 void unknownDFA::unknown() {
-    longest = position;
     if (position < input.size() && input[position]) {
         ++position;
         unknownEnd();

@@ -30,6 +30,21 @@ string runNull(const string& input, int start) {
     return dfa.run();
 }
 
+string runString(const string& input, int start) {
+    stringDFA dfa(input, start);
+    return dfa.run();
+}
+
+string runLongstring(const string& input, int start) {
+    longstringDFA dfa(input, start);
+    return dfa.run();
+}
+
+string runNumber(const string& input, int start) {
+    numberDFA dfa(input, start);
+    return dfa.run();
+}
+
 string runUnknown(const string& input, int start) {
     unknownDFA dfa(input, start);
     return dfa.run();
@@ -45,6 +60,9 @@ vector<DFAs> allDFAs = {
     {"TRUE", runTrue},
     {"FALSE", runFalse},
     {"NULL", runNull},
+    {"STRING", runString},
+    {"STRING", runLongstring},
+    {"NUMBER", runNumber},
     {"UNKOWN", runUnknown},
 };
 
@@ -76,7 +94,7 @@ void lex(string input) {
 }
 
 int main() {
-    lex(" true false null true");
+    lex(R"( true false "h\"i" null true """long \n\rstring\"""" 123 0 123.01 0.1 0e12 0.01E123 123E+123 589e-0)");
     
     return 0;
 }
