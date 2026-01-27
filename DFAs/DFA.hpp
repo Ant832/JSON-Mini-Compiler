@@ -92,6 +92,54 @@ public:
     string run();
 };
 
+class lcurlyDFA : public BaseDFA {
+    void lcStart();
+    void lc1();
+public:
+    lcurlyDFA(string, int);
+    string run();
+};
+
+class rcurlyDFA : public BaseDFA {
+    void rcStart();
+    void rc1();
+public:
+    rcurlyDFA(string, int);
+    string run();
+};
+
+class lbracketDFA : public BaseDFA {
+    void lbStart();
+    void lb1();
+public:
+    lbracketDFA(string, int);
+    string run();
+};
+
+class rbracketDFA : public BaseDFA {
+    void rbStart();
+    void rb1();
+public:
+    rbracketDFA(string, int);
+    string run();
+};
+
+class colonDFA : public BaseDFA {
+    void colStart();
+    void col1();
+public:
+    colonDFA(string, int);
+    string run();
+};
+
+class commaDFA : public BaseDFA {
+    void comStart();
+    void com1();
+public:
+    commaDFA(string, int);
+    string run();
+};
+
 class unknownDFA : public BaseDFA {
     void unknown();
     void unknownEnd();

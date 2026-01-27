@@ -50,6 +50,36 @@ string runUnknown(const string& input, int start) {
     return dfa.run();
 }
 
+string runLCurly(const string& input, int start) {
+    lcurlyDFA dfa(input, start);
+    return dfa.run();
+}
+
+string runRCurly(const string& input, int start) {
+    rcurlyDFA dfa(input, start);
+    return dfa.run();
+}
+
+string runLBracket(const string& input, int start) {
+    lbracketDFA dfa(input, start);
+    return dfa.run();
+}
+
+string runRBracket(const string& input, int start) {
+    rbracketDFA dfa(input, start);
+    return dfa.run();
+}
+
+string runColon(const string& input, int start) {
+    colonDFA dfa(input, start);
+    return dfa.run();
+}
+
+string runComma(const string& input, int start) {
+    commaDFA dfa(input, start);
+    return dfa.run();
+}
+
 struct DFAs {
     const char* token;
     runDFA run;
@@ -63,6 +93,12 @@ vector<DFAs> allDFAs = {
     {"STRING", runString},
     {"STRING", runLongstring},
     {"NUMBER", runNumber},
+    {"LCURLY", runLCurly},
+    {"RCURLY", runRCurly},
+    {"LSQUARE", runLBracket},
+    {"RSQUARE", runRBracket},
+    {"COLON", runColon},
+    {"COMMA", runComma},
     {"UNKOWN", runUnknown},
 };
 
@@ -94,7 +130,7 @@ void lex(string input) {
 }
 
 int main() {
-    lex(R"( true false "h\"i" null true """long \n\rstring\"""" 123 0 123.01 0.1 0e12 0.01E123 123E+123 589e-0)");
+    lex(R"( { } [ ] : , true false "h\"i" null true """long \n\rstring\"""" 123 0 123.01 0.1 0e12 0.01E123 123E+123 589e-0 unknown)");
     
     return 0;
 }

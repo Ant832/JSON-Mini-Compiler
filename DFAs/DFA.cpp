@@ -413,7 +413,167 @@ string numberDFA::run() {
     }
 }
 
+//  ----------------- lcurlyDFA method definitions -----------------
+void lcurlyDFA::lcStart() {
+    if (position< input.size() && input[position] == '{') {
+        ++position;
+        lc1();
+    }
+}
 
+void lcurlyDFA::lc1() {
+    longest = position;
+}
+
+lcurlyDFA::lcurlyDFA(string input, int start) {
+    this->input = input;
+    this->start = start;
+    position = start;
+}
+
+string lcurlyDFA::run() {
+    lcStart();
+    if (longest > -1) {
+        return input.substr(start, longest - start);
+    } else {
+        return "";
+    }
+}
+
+//  ----------------- rcurlyDFA method definitions -----------------
+void rcurlyDFA::rcStart() {
+    if (position< input.size() && input[position] == '}') {
+        ++position;
+        rc1();
+    }
+}
+
+void rcurlyDFA::rc1() {
+    longest = position;
+}
+
+rcurlyDFA::rcurlyDFA(string input, int start) {
+    this->input = input;
+    this->start = start;
+    position = start;
+}
+
+string rcurlyDFA::run() {
+    rcStart();
+    if (longest > -1) {
+        return input.substr(start, longest - start);
+    } else {
+        return "";
+    }
+}
+
+//  ----------------- lbracketStart method definitions -----------------
+void lbracketDFA::lbStart() {
+    if (position< input.size() && input[position] == '[') {
+        ++position;
+        lb1();
+    }
+}
+
+void lbracketDFA::lb1() {
+    longest = position;
+}
+
+lbracketDFA::lbracketDFA(string input, int start) {
+    this->input = input;
+    this->start = start;
+    position = start;
+}
+
+string lbracketDFA::run() {
+    lbStart();
+    if (longest > -1) {
+        return input.substr(start, longest - start);
+    } else {
+        return "";
+    }
+}
+
+//  ----------------- rbracketDFA method definitions -----------------
+void rbracketDFA::rbStart() {
+    if (position< input.size() && input[position] == ']') {
+        ++position;
+        rb1();
+    }
+}
+
+void rbracketDFA::rb1() {
+    longest = position;
+}
+
+rbracketDFA::rbracketDFA(string input, int start) {
+    this->input = input;
+    this->start = start;
+    position = start;
+}
+
+string rbracketDFA::run() {
+    rbStart();
+    if (longest > -1) {
+        return input.substr(start, longest - start);
+    } else {
+        return "";
+    }
+}
+
+//  ----------------- colonDFA method definitions -----------------
+void colonDFA::colStart() {
+    if (position< input.size() && input[position] == ':') {
+        ++position;
+        col1();
+    }
+}
+
+void colonDFA::col1() {
+    longest = position;
+}
+
+colonDFA::colonDFA(string input, int start) {
+    this->input = input;
+    this->start = start;
+    position = start;
+}
+
+string colonDFA::run() {
+    colStart();
+    if (longest > -1) {
+        return input.substr(start, longest - start);
+    } else {
+        return "";
+    }
+}
+
+//  ----------------- commaDFA method definitions -----------------
+void commaDFA::comStart() {
+    if (position< input.size() && input[position] == ',') {
+        ++position;
+        com1();
+    }
+}
+
+void commaDFA::com1() {
+    longest = position;
+}
+
+commaDFA::commaDFA(string input, int start) {
+    this->input = input;
+    this->start = start;
+    position = start;
+}
+
+string commaDFA::run() {
+    comStart();
+    if (longest > -1) {
+        return input.substr(start, longest - start);
+    } else {
+        return "";
+    }
+}
 //  ----------------- unknownDFA method definitions -----------------
 void unknownDFA::unknown() {
     if (position < input.size() && input[position]) {
