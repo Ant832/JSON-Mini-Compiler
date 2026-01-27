@@ -235,8 +235,22 @@ string stringDFA::run() {
 
 // ----------------- longstringDFA method definitions -----------------
 void longstringDFA::longStart() {
-    if (position + 2 < input.size() && input.substr(position, 3) == "\"\"\"") {
-        position += 3;
+    if (position < input.size() && input[position] == '\"') {
+        ++position;
+        start1();
+    }
+}
+
+void longstringDFA::start1() {
+    if (position < input.size() && input[position] == '\"') {
+        ++position;
+        start2();
+    }
+}
+
+void longstringDFA::start2() {
+    if (position < input.size() && input[position] == '\"') {
+        ++position;
         chars();
     }
 }
@@ -301,7 +315,6 @@ longstringDFA::longstringDFA(string input, int start) {
 string longstringDFA::run() {
     longStart();
     if (longest > -1) {
-        // cout << longest - start << endl;
         return input.substr(start, longest - start);
     } else {
         return "";

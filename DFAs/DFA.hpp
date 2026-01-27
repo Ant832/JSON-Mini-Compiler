@@ -67,6 +67,8 @@ public:
 
 class longstringDFA : public BaseDFA {
     void longStart();
+    void start1();
+    void start2();
     void esc();
     void quote1();
     void quote2();
