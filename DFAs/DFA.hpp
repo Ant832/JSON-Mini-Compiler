@@ -2,67 +2,109 @@
 #define DFA
 
 #include <string>
+#include <iostream>
 
 using std::string;
+using std::cout;
+using std::endl;
 
 class BaseDFA {
+public:
+    int longest = -1;
 protected:
     string input;
     int start;
     int position;
-    int longest = -1;
+    BaseDFA(const string &input, int startPos) : input(input), start(startPos), position(startPos) {}
 };
+
+template <typename BaseDFA>
+void charCheck(const string &input, int &position, char check, BaseDFA &dfa, void (BaseDFA::*func)()) {
+    if (position < input.size() && input[position] == check) {
+        ++position;
+        (dfa.*func)();
+    }
+}
+
+template <typename BaseDFA>
+void charCheckAny(const string &input, int &position, const string &chars, BaseDFA &dfa, void (BaseDFA::*func)()) {
+    if (position < input.size() && chars.find(input[position]) != string::npos) {
+        ++position;
+        (dfa.*func)();
+    }
+}
+
+template <typename BaseDFA>
+string runT(const int start, const string input, BaseDFA &dfa, void (BaseDFA::*func)()) {
+    (dfa.*func)();
+    if (dfa.longest > -1) {
+        return input.substr(start, dfa.longest - start);
+    } else {
+        return "";
+    }
+}
 
 
 class trueDFA : public BaseDFA {
-    void tStart();
-    void t1();
-    void t2();
-    void t3();
-    void t4();
+    inline void tStart() { charCheck(input, position, 't', *this, &trueDFA::t1); }
+    inline void t1() { charCheck(input, position, 'r', *this, &trueDFA::t2); }
+    inline void t2() { charCheck(input, position, 'u', *this, &trueDFA::t3); }
+    inline void t3() { charCheck(input, position, 'e', *this, &trueDFA::t4); }
+    inline void t4() { longest = position; }
 public:
-    trueDFA(string, int);
-    string run();
+    inline trueDFA(string input, int start) : BaseDFA(input, start) {}
+    inline string run() { return runT(start, input, *this, &trueDFA::tStart); }
 };
 
 class falseDFA : public BaseDFA {
-    void fStart();
-    void f1();
-    void f2();
-    void f3();
-    void f4();
-    void f5();
+    inline void fStart() { charCheck(input, position, 'f', *this, &falseDFA::f1); }
+    inline void f1() { charCheck(input, position, 'a', *this, &falseDFA::f2); }
+    inline void f2() { charCheck(input, position, 'l', *this, &falseDFA::f3); }
+    inline void f3() { charCheck(input, position, 's', *this, &falseDFA::f4); }
+    inline void f4() { charCheck(input, position, 'e', *this, &falseDFA::f5); }
+    inline void f5() { longest = position; }
 public:
-    falseDFA(string, int);
-    string run();
+    inline falseDFA(string input, int start) : BaseDFA(input, start) {}
+    inline string run() { return runT(start, input, *this, &falseDFA::fStart); }
 };
 
 class nullDFA : public BaseDFA {
-    void nStart();
-    void n1();
-    void n2();
-    void n3();
-    void n4();
+    inline void nStart() { charCheck(input, position, 'n', *this, &nullDFA::n1); }
+    inline void n1() { charCheck(input, position, 'u', *this, &nullDFA::n2); }
+    inline void n2() { charCheck(input, position, 'l', *this, &nullDFA::n3); }
+    inline void n3() { charCheck(input, position, 'l', *this, &nullDFA::n4); }
+    inline void n4() { longest = position; }
 public:
-    nullDFA(string, int);
-    string run();
+    inline nullDFA(string input, int start) : BaseDFA(input, start) {}
+    inline string run() { return runT(start, input, *this, &nullDFA::nStart); }
 };
 
 class whitespaceDFA : public BaseDFA {
-    void wsStart();
+    inline void wsStart() {
+        longest = position;
+        charCheckAny(input, position, " \n\r\t", *this, &whitespaceDFA::wsStart);
+    }
 public:
-    whitespaceDFA(string, int);
-    string run();
+    inline whitespaceDFA(string input, int start) : BaseDFA(input, start) {}
+    inline string run() { return runT(start, input, *this, &whitespaceDFA::wsStart); }
 };
 
 class stringDFA : public BaseDFA {
-    void strStart();
-    void chars();
-    void esc();
-    void strEnd();
+    inline void strStart() { charCheck(input, position, '"', *this, &stringDFA::chars); }
+
+    inline void chars() {
+        while (position < input.size() && (int(input[position]) >= 32 && int(input[position]) <= 126) && int(input[position]) != 34 && int(input[position]) != 92) {
+            ++position;
+        }
+        charCheck(input, position, '\\', *this, &stringDFA::esc);
+        charCheck(input, position, '"', *this, &stringDFA::strEnd);
+    }
+
+    inline void esc() { charCheckAny(input, position, "\"\\/bfnrt", *this, &stringDFA::chars); }
+    inline void strEnd() { longest = position; }
 public:
-    stringDFA(string, int);
-    string run();
+    inline stringDFA(string input, int start) : BaseDFA(input, start) {}
+    inline string run() { return runT(start, input, *this, &stringDFA::strStart); }
 };
 
 class longstringDFA : public BaseDFA {
@@ -75,79 +117,85 @@ class longstringDFA : public BaseDFA {
     void chars();
     void longEnd();
 public:
-    longstringDFA(string, int);
-    string run();
+    inline longstringDFA(string input, int start) : BaseDFA(input, start) {}
+    inline string run() { return runT(start, input, *this, &longstringDFA::longStart); }
 };
 
 class numberDFA : public BaseDFA {
     void numStart();
-    void zero();
     void minus();
     void ints();
     void dec();
     void floats();
     void e();
     void plusMinus();
+    void zero();
     void exp();
 public:
-    numberDFA(string, int);
-    string run();
+    inline numberDFA(string input, int start) : BaseDFA(input, start) {}
+    inline string run() { return runT(start, input, *this, &numberDFA::numStart); }
 };
 
 class lcurlyDFA : public BaseDFA {
-    void lcStart();
-    void lc1();
+    inline void lcStart() { charCheck(input, position, '{', *this, &lcurlyDFA::lc1); }
+    inline void lc1() { longest = position; }
 public:
-    lcurlyDFA(string, int);
-    string run();
+    inline lcurlyDFA(string input, int start) : BaseDFA(input, start) {}
+    inline string run() { return runT(start, input, *this, &lcurlyDFA::lcStart); }
 };
 
 class rcurlyDFA : public BaseDFA {
-    void rcStart();
-    void rc1();
+    inline void rcStart() { charCheck(input, position, '}', *this, &rcurlyDFA::rc1); }
+    inline void rc1() { longest = position; }
 public:
-    rcurlyDFA(string, int);
-    string run();
+    inline rcurlyDFA(string input, int start) : BaseDFA(input, start) {}
+    inline string run() { return runT(start, input, *this, &rcurlyDFA::rcStart); }
 };
 
 class lbracketDFA : public BaseDFA {
-    void lbStart();
-    void lb1();
+    inline void lbStart() { charCheck(input, position, '[', *this, &lbracketDFA::lb1); }
+    inline void lb1() { longest = position; }
 public:
-    lbracketDFA(string, int);
-    string run();
+    inline lbracketDFA(string input, int start) : BaseDFA(input, start) {}
+    inline string run() { return runT(start, input, *this, &lbracketDFA::lbStart); }
 };
 
 class rbracketDFA : public BaseDFA {
-    void rbStart();
-    void rb1();
+    inline void rbStart() { charCheck(input, position, ']', *this, &rbracketDFA::rb1); }
+    inline void rb1() { longest = position; }
 public:
-    rbracketDFA(string, int);
-    string run();
+    inline rbracketDFA(string input, int start) : BaseDFA(input, start) {}
+    inline string run() { return runT(start, input, *this, &rbracketDFA::rbStart); }
 };
 
 class colonDFA : public BaseDFA {
-    void colStart();
-    void col1();
+    inline void colStart() { charCheck(input, position, ':', *this, &colonDFA::col1); }
+    inline void col1() { longest = position; }
 public:
-    colonDFA(string, int);
-    string run();
+    inline colonDFA(string input, int start) : BaseDFA(input, start) {}
+    inline string run() { return runT(start, input, *this, &colonDFA::colStart); }
 };
 
 class commaDFA : public BaseDFA {
-    void comStart();
-    void com1();
+    inline void comStart() { charCheck(input, position, ',', *this, &commaDFA::com1); }
+    inline void com1() { longest = position; }
 public:
-    commaDFA(string, int);
-    string run();
+    inline commaDFA(string input, int start) : BaseDFA(input, start) {}
+    inline string run() { return runT(start, input, *this, &commaDFA::comStart); }
 };
 
 class unknownDFA : public BaseDFA {
-    void unknown();
-    void unknownEnd();
+    inline void unknown() { 
+        if (position < input.size() && input[position]) {
+            ++position;
+            unknownEnd();
+        }
+    }
+
+    inline void unknownEnd() {  longest = position; }
 public:
-    unknownDFA(string, int);
-    string run();
+    inline unknownDFA(string input, int start) : BaseDFA(input, start) {}
+    inline string run() { return runT(start, input, *this, &unknownDFA::unknown); }
 };
 
 #endif
