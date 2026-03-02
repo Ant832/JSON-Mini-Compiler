@@ -1,7 +1,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "DFA.hpp"
+#include "../include/DFA.hpp"
+#include "../include/recognizer.hpp"
 
 using std::cout;
 using std::endl;
@@ -102,7 +103,7 @@ vector<DFAs> allDFAs = {
     {"UNKOWN", runUnknown},
 };
 
-void lex(string input) {
+void lex(string input, vector<string>& tokenVec) {
     vector<string> tokens;
     int i = 0;
 
@@ -124,13 +125,40 @@ void lex(string input) {
             token = "UNKNOWN";
         }
 
-        cout << token << ": " << longestLexeme << endl;
+        if (token != "WHITESPACE") {
+            tokenVec.push_back(token);
+        }
         i += longestLexeme.size();
     }
 }
 
+
 int main() {
-    lex(R"( { } [ ] : , true false "h\"i" null true """long \n\rstring\"""" 123 0 123.01 0.1 0e12 0.01E123 123E+123 589e-0 unknown)");
+    string input = R"({
+"name": "Chris",
+"age": -2.3e-342,
+"address": {
+  "city": "New York",
+  "country": "America"
+},
+"friends": [
+  {
+    "name": "Emily",
+    "hobbies": [ "biking", "music", "gaming" ]
+  },
+  {
+    "name": "John",
+    "hobbies": [ "soccer", "gaming" ]
+  }
+]
+})";
+    vector<string> tokenVec;
+    lex(input, tokenVec);
+
+    Parser p(tokenVec);
+    if (p.JSON()) {
+        cout << "Valid JSON value" << endl;
+    }
     
     return 0;
 }
