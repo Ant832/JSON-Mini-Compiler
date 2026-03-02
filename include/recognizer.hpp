@@ -24,6 +24,12 @@ class Parser {
     }
 
     bool object() {
+        if (tokenVec[position] == "RCURLY") {
+            if (position == tokenVec.size() - 1) {
+                return true;
+            }
+            return false;
+        }
         read("STRING");
         read("COLON");
         value();
@@ -42,6 +48,8 @@ class Parser {
             read("COLON");
             value();
             objectCont();
+        } else if (tokenVec[position] == "RCURLY") {
+            return;
         }
     }
 
@@ -76,6 +84,9 @@ class Parser {
     }
 
     void array() {
+        if (tokenVec[position] == "]") {
+            return;
+        }
         value();
         arrayCont();
     }
@@ -85,6 +96,8 @@ class Parser {
             read("COMMA");
             value();
             arrayCont();
+        } else if (tokenVec[position] == "RSQUARE") {
+            return;
         }
     }
 

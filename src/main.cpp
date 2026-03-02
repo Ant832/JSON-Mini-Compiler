@@ -1,6 +1,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <fstream>
+#include <sstream>
 #include "../include/DFA.hpp"
 #include "../include/recognizer.hpp"
 
@@ -8,6 +10,8 @@ using std::cout;
 using std::endl;
 using std::string;
 using std::vector;
+using std::ifstream;
+using std::ostringstream;
 
 using runDFA = string (*)(const string&, int);
 
@@ -134,24 +138,15 @@ void lex(string input, vector<string>& tokenVec) {
 
 
 int main() {
-    string input = R"({
-"name": "Chris",
-"age": -2.3e-342,
-"address": {
-  "city": "New York",
-  "country": "America"
-},
-"friends": [
-  {
-    "name": "Emily",
-    "hobbies": [ "biking", "music", "gaming" ]
-  },
-  {
-    "name": "John",
-    "hobbies": [ "soccer", "gaming" ]
-  }
-]
-})";
+    ifstream file("JSON/test.json");
+    if (!file.is_open()) {
+        throw std::runtime_error("Couldn't open file");
+    }
+
+    ostringstream ss;
+    ss << file.rdbuf();
+    string input = ss.str();
+
     vector<string> tokenVec;
     lex(input, tokenVec);
 
