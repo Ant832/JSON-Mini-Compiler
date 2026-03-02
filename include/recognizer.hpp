@@ -84,7 +84,7 @@ class Parser {
     }
 
     void array() {
-        if (tokenVec[position] == "]") {
+        if (tokenVec[position] == "RSQUARE") {
             return;
         }
         value();
