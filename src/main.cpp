@@ -1,12 +1,17 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "DFA.hpp"
+#include <fstream>
+#include <sstream>
+#include "../include/DFA.hpp"
+#include "../include/recognizer.hpp"
 
 using std::cout;
 using std::endl;
 using std::string;
 using std::vector;
+using std::ifstream;
+using std::ostringstream;
 
 using runDFA = string (*)(const string&, int);
 
@@ -102,7 +107,7 @@ vector<DFAs> allDFAs = {
     {"UNKOWN", runUnknown},
 };
 
-void lex(string input) {
+void lex(string input, vector<string>& tokenVec) {
     vector<string> tokens;
     int i = 0;
 
@@ -124,13 +129,31 @@ void lex(string input) {
             token = "UNKNOWN";
         }
 
-        cout << token << ": " << longestLexeme << endl;
+        if (token != "WHITESPACE") {
+            tokenVec.push_back(token);
+        }
         i += longestLexeme.size();
     }
 }
 
+
 int main() {
-    lex(R"( { } [ ] : , true false "h\"i" null true """long \n\rstring\"""" 123 0 123.01 0.1 0e12 0.01E123 123E+123 589e-0 unknown)");
+    ifstream file("JSON/test.json");
+    if (!file.is_open()) {
+        throw std::runtime_error("Couldn't open file");
+    }
+
+    ostringstream ss;
+    ss << file.rdbuf();
+    string input = ss.str();
+
+    vector<string> tokenVec;
+    lex(input, tokenVec);
+
+    Parser p(tokenVec);
+    if (p.JSON()) {
+        cout << "Valid JSON value" << endl;
+    }
     
     return 0;
 }

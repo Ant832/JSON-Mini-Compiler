@@ -1,6 +1,6 @@
 #include <iostream>
 #include <string>
-#include "DFA.hpp"
+#include "../include/DFA.hpp"
 
 using std::cout;
 using std::endl;
