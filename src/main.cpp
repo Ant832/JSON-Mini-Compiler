@@ -156,8 +156,8 @@ int main() {
     Parser p(tokenVec, valueVec);
     unique_ptr<JSONNode> root = p.JSON();
 
-    JSONPrinter printer;
-    root->accept(printer);
+    JSONPrettyPrinter prettyPrinter;
+    root->accept(prettyPrinter);
 
     cout << endl;
     
