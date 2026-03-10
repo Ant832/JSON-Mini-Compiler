@@ -38,7 +38,7 @@ class Parser {
 
         read("STRING");
         read("COLON");
-        node->pair[key] = value();
+        node->pairs.push_back(std::make_pair(key, value()));
         objectCont(*node);
         
         return node;
@@ -46,12 +46,12 @@ class Parser {
 
     void objectCont(JSONObject& node) {
         if (tokenVec[position] == "COMMA") {
-            string key = valueVec[position];
-
             read("COMMA");
+
+            string key = valueVec[position];
             read("STRING");
             read("COLON");
-            node.pair[key] = value();
+            node.pairs.push_back(std::make_pair(key, value()));
             objectCont(node);
         } else if (tokenVec[position] == "RCURLY") {
             return;
@@ -71,7 +71,6 @@ class Parser {
         } else if (tokenVec[position] == "LSQUARE") {
             read("LSQUARE");
             unique_ptr<JSONArray> node = array();
-            cout << "check" << endl;
             read("RSQUARE");
             return node;
         } else if (tokenVec[position] == "TRUE") {
@@ -107,7 +106,7 @@ class Parser {
         if (tokenVec[position] == "RSQUARE") {
             return node;
         }
-        value();
+        node->array.push_back(value());
         arrayCont(*node);
         return node;
     }
@@ -125,13 +124,11 @@ class Parser {
 public:
     Parser(const vector<string>& tokenVec, const vector<string>& valueVec) : tokenVec(tokenVec), valueVec(valueVec) {}
     
-    bool JSON() {
+    unique_ptr<JSONNode>JSON() {
         read("LCURLY");
-        if (object()) {
-            read("RCURLY");
-            return true;
-        }
-        return false;
+        unique_ptr<JSONObject> root = object();
+        read("RCURLY");
+        return root;
     }
 
 };

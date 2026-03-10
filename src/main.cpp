@@ -5,6 +5,7 @@
 #include <sstream>
 #include "../include/DFA.hpp"
 #include "../include/recognizer.hpp"
+#include "../include/ast.hpp"
 
 using std::cout;
 using std::endl;
@@ -153,9 +154,12 @@ int main() {
     lex(input, tokenVec, valueVec);
 
     Parser p(tokenVec, valueVec);
-    if (p.JSON()) {
-        cout << "Valid JSON value" << endl;
-    }
+    unique_ptr<JSONNode> root = p.JSON();
+
+    JSONPrinter printer;
+    root->accept(printer);
+
+    cout << endl;
     
     return 0;
 }
