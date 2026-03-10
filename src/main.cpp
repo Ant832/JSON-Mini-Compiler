@@ -107,7 +107,7 @@ vector<DFAs> allDFAs = {
     {"UNKOWN", runUnknown},
 };
 
-void lex(string input, vector<string>& tokenVec) {
+void lex(string input, vector<string>& tokenVec, vector<string>& valueVec) {
     vector<string> tokens;
     int i = 0;
 
@@ -131,6 +131,7 @@ void lex(string input, vector<string>& tokenVec) {
 
         if (token != "WHITESPACE") {
             tokenVec.push_back(token);
+            valueVec.push_back(longestLexeme);
         }
         i += longestLexeme.size();
     }
@@ -148,9 +149,10 @@ int main() {
     string input = ss.str();
 
     vector<string> tokenVec;
-    lex(input, tokenVec);
+    vector<string> valueVec;
+    lex(input, tokenVec, valueVec);
 
-    Parser p(tokenVec);
+    Parser p(tokenVec, valueVec);
     if (p.JSON()) {
         cout << "Valid JSON value" << endl;
     }
