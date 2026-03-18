@@ -38,75 +38,38 @@ public:
 
     JSONValue(Type t, string str) : type(t), str(str) {}
     JSONValue(Type t) : type(t) {}
-
-    void accept(JSONVisitor& visitor) override {
-        visitor.visit(*this);
-    }
+    void accept(JSONVisitor& visitor) override;
 };
 
 class JSONObject : public JSONNode {
 public:
     vector<pair<string, unique_ptr<JSONNode>>> pairs;
-    
-    void accept(JSONVisitor& visitor) override {
-        visitor.visit(*this);
-    }
+    void accept(JSONVisitor& visitor) override;
 };
 
 class JSONArray : public JSONNode {
 public:
     vector<unique_ptr<JSONNode>> array;
-
-    void accept(JSONVisitor& visitor) override {
-        visitor.visit(*this);
-    }
+    void accept(JSONVisitor& visitor) override;
 };
 
 class JSONPrinter : public JSONVisitor {
 public:
-    void visit(JSONValue& node) override {
-        switch (node.type) {
-            case JSONValue::Type::String:
-                cout << node.str;
-                break;
-            case JSONValue::Type::Number:
-                cout << node.str;
-                break;
-            case JSONValue::Type::False:
-                cout << "false";
-                break;
-            case JSONValue::Type::True:
-                cout << "true";
-                break;
-            case JSONValue::Type::Null:
-                cout << "null";
-                break;
-        }
-    }
+    void visit(JSONValue& node) override;
+    void visit(JSONArray& node) override;
+    void visit(JSONObject& node) override;
+};
 
-    void visit(JSONArray& node) override {
-        cout << "[";
-        for (auto& value : node.array) {
-            value->accept(*this);
-            if (value != node.array.back()) {
-                cout << ",";
-            }
-        }
-        cout << "]";
-    }
 
-    void visit(JSONObject& node) override {
-        cout << "{";
-        for (auto it = node.pairs.begin(); it != node.pairs.end(); ++it) {
-            cout << it->first << ":";
-            it->second->accept(*this);
-            if (next(it) != node.pairs.end()) {
-                cout << ",";
-            }
-        }
-        cout << "}";
-    }
-
+class JSONPrettyPrinter : public JSONVisitor {
+    bool start = true;
+    int depth = -1;
+    int objects = 0;
+public:
+    void printIndent();
+    void visit(JSONValue& node) override;
+    void visit(JSONArray& node) override;
+    void visit(JSONObject& node) override;
 };
 
 #endif
