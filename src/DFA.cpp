@@ -81,7 +81,7 @@ void numberDFA::minus() {
 
 void numberDFA::ints() {
     longest = position;
-    if (position< input.size() && (int(input[position] - '0') >= 1 && int(input[position] - '0') <= 9)) {
+    if (position< input.size() && (int(input[position] - '0') >= 0 && int(input[position] - '0') <= 9)) {
         ++position;
         ints();
     }

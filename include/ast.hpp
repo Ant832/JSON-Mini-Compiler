@@ -4,13 +4,18 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <set>
+#include <map>
 #include <memory>
 #include <utility>
 
 using std::cout;
+using std::cerr;
 using std::endl;
 using std::string;
 using std::vector;
+using std::set;
+using std::map;
 using std::pair;
 using std::unique_ptr;
 using std::make_unique;
@@ -49,7 +54,7 @@ public:
 
 class JSONArray : public JSONNode {
 public:
-    vector<unique_ptr<JSONNode>> array;
+    vector<pair<string, unique_ptr<JSONNode>>> array;
     void accept(JSONVisitor& visitor) override;
 };
 
@@ -61,12 +66,21 @@ public:
 };
 
 
-class JSONPrettyPrinter : public JSONVisitor {
-    bool start = true;
-    int depth = -1;
-    int objects = 0;
+class HasTypeValidator : public JSONVisitor {
 public:
-    void printIndent();
+    void visit(JSONValue& node) override;
+    void visit(JSONArray& node) override;
+    void visit(JSONObject& node) override;
+};
+
+class StructureValidator : public JSONVisitor {
+    map<string, vector<pair<string, string>>> structures;
+    map<string, string> arrays;
+
+    string typeToString(JSONValue::Type);
+    string getType(JSONNode*);
+    string getTypeName(JSONObject*);
+public:
     void visit(JSONValue& node) override;
     void visit(JSONArray& node) override;
     void visit(JSONObject& node) override;
