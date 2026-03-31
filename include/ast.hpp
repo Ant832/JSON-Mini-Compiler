@@ -60,16 +60,4 @@ public:
     void visit(JSONObject& node) override;
 };
 
-
-class JSONPrettyPrinter : public JSONVisitor {
-    bool start = true;
-    int depth = -1;
-    int objects = 0;
-public:
-    void printIndent();
-    void visit(JSONValue& node) override;
-    void visit(JSONArray& node) override;
-    void visit(JSONObject& node) override;
-};
-
 #endif
