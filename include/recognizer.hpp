@@ -38,7 +38,7 @@ class Parser {
 
         read("STRING");
         read("COLON");
-        node->pairs.push_back(std::make_pair(key, value()));
+        node->pairs.push_back(std::make_pair(key, value(key)));
         objectCont(*node);
         
         return node;
@@ -51,14 +51,15 @@ class Parser {
             string key = valueVec[position];
             read("STRING");
             read("COLON");
-            node.pairs.push_back(std::make_pair(key, value()));
+            node.pairs.push_back(std::make_pair(key, value(key)));
             objectCont(node);
+            return;
         } else if (tokenVec[position] == "RCURLY") {
             return;
         }
     }
 
-    unique_ptr<JSONNode> value() {
+    unique_ptr<JSONNode> value(string key) {
         if (tokenVec[position] == "LCURLY") {
             read("LCURLY");
             unique_ptr<JSONObject> node = object();
@@ -70,7 +71,7 @@ class Parser {
             return node;
         } else if (tokenVec[position] == "LSQUARE") {
             read("LSQUARE");
-            unique_ptr<JSONArray> node = array();
+            unique_ptr<JSONArray> node = array(key);
             read("RSQUARE");
             return node;
         } else if (tokenVec[position] == "TRUE") {
@@ -101,21 +102,21 @@ class Parser {
         read("NUMBER");
     }
 
-    unique_ptr<JSONArray> array() {
+    unique_ptr<JSONArray> array(string key) {
         unique_ptr<JSONArray> node = make_unique<JSONArray>();
         if (tokenVec[position] == "RSQUARE") {
             return node;
         }
-        node->array.push_back(value());
-        arrayCont(*node);
+        node->array.push_back(std::make_pair(key, value(key)));
+        arrayCont(*node, key);
         return node;
     }
 
-    void arrayCont(JSONArray& node) {
+    void arrayCont(JSONArray& node, string key) {
         if (tokenVec[position] == "COMMA") {
             read("COMMA");
-            node.array.push_back(value());
-            arrayCont(node);
+            node.array.push_back(std::make_pair(key, value(key)));
+            arrayCont(node, key);
         } else if (tokenVec[position] == "RSQUARE") {
             return;
         }
