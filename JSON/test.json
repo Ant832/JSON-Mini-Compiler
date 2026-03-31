@@ -1,9 +1,5 @@
 {
-  "type": "cars",
-  "models": [
-    { "type": "car", "name": "Ford", "year": 1970 },
-    { "type": "car", "name": "Toyota", "year": 2021 },
-    { "type": "car", "name": "Honda", "year": 2015 }
-  ],
-  "array": [[1], [2, 3]]
+  "type": "arrays",
+  "array0": [[1,2], [3,4]],
+  "array1": [[[1], [2]], [[3], [4]]]
 }

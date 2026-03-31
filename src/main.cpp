@@ -156,13 +156,11 @@ int main() {
     Parser p(tokenVec, valueVec);
     unique_ptr<JSONNode> root = p.JSON();
 
-    HasTypeValidator htv;
-    root->accept(htv);
+    Flattener fl;
+    root->accept(fl);
 
-    StructureValidator sv;
-    root->accept(sv);
-
-    cout << "Valid JSON" << endl;
+    JSONPrinter jp;
+    root->accept(jp);
 
     return 0;
 }
